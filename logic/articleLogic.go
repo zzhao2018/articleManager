@@ -6,9 +6,9 @@ import (
 	"log"
 	"strconv"
 	"time"
-	"wxGroupSend/dao"
-	"wxGroupSend/model"
-	"wxGroupSend/wxutil"
+	"articleManager/dao"
+	"articleManager/model"
+	"articleManager/wxutil"
 )
 
 //添加文章到数据库
@@ -72,4 +72,9 @@ func AddArticle(paramMap map[string]interface{}) error{
 	}
 	dao.InsertArticle(articleInfo)
 	return nil
+}
+
+//随机获取一条消息
+func SearchRandomArticle(typeI int)(*model.ArticleInfo){
+	return dao.SearchArticleByRandom(typeI)
 }

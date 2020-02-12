@@ -11,6 +11,9 @@ type Conf struct {
 	Password string `yaml:"password"`
 	RemoveUrl string `yaml:"removeUrl"`
 	PhotoSavePath string `yaml:"photoSavePath"`
+	EmailAddr string `yaml:"emailAddr"`
+	ToEmailAddr []string `yaml:"toEmailAddr"`
+	Subject string `yaml:"subject"`
 }
 
 const(

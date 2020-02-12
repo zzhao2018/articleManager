@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_"github.com/jinzhu/gorm/dialects/mysql"
 	"log"
-	"wxGroupSend/conf"
+	"articleManager/conf"
 )
 
 var db *gorm.DB

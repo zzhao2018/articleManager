@@ -4,7 +4,7 @@ import "time"
 
 //文章信息
 type ArticleInfo struct {
-	Id              int32     `gorm:"column:id"`
+	Id              int32     `gorm:"column:id;primary_key"`
 	Article_context string    `gorm:"column:article"`
 	Type            int32     `gorm:"column:type"`
 	Photo           string    `gorm:"column:photo"`
@@ -14,15 +14,4 @@ type ArticleInfo struct {
 
 func (ArticleInfo) TableName() string {
 	return "article"
-}
-
-
-//类型信息
-type TypeInfo struct {
-	Id       int32  `gorm:"column:id"`
-	TypeName string `gorm:"column:type_name"`
-}
-
-func(TypeInfo) TableName() string{
-	return "type"
 }

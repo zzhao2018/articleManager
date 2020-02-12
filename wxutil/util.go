@@ -6,6 +6,8 @@ const(
 	C_PhotoName="images"
 	C_TypeName="gender"
 	C_ContextName="content"
+
+	C_ParamSeting="paramSeting"
 )
 
 type ResponseInfo struct {

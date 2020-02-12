@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"wxGroupSend/model"
+	"articleManager/model"
 )
 
 //插入数据

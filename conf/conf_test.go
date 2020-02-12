@@ -24,4 +24,7 @@ func TestConf_GetDataBaseUrl(t *testing.T) {
 	}
 	fmt.Printf("%s\n",conf.GetDataBaseUrl())
 	fmt.Printf("data:%+v\n",conf.PhotoSavePath)
+	fmt.Printf("data:%+v\n",conf.EmailAddr)
+	fmt.Printf("data:%+v\n",conf.ToEmailAddr)
+	fmt.Printf("data:%+v\n",conf.Subject)
 }

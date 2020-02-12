@@ -5,9 +5,9 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
-	"wxGroupSend/conf"
-	"wxGroupSend/controller"
-	"wxGroupSend/dao"
+	"articleManager/conf"
+	"articleManager/controller"
+	"articleManager/dao"
 )
 
 //解析配置文件
@@ -50,5 +50,8 @@ func main() {
 	//开启服务
 	engi:=gin.Default()
 	engi.POST("/addArticle",controller.AddArticle)
-	engi.Run(":8080")
+	engi.POST("/alterParam",controller.ReSetSendParam)
+	engi.GET("/getTypeList",controller.GetTypeList)
+
+	engi.Run(":8088")
 }

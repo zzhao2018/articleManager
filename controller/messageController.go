@@ -7,16 +7,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"time"
-	"wxGroupSend/conf"
-	"wxGroupSend/logic"
-	"wxGroupSend/wxutil"
+	"articleManager/logic"
+	"articleManager/wxutil"
 )
-
-var config *conf.Conf
-
-func SetConfig(config_in *conf.Conf){
-	config=config_in
-}
 
 //增加文章
 func AddArticle(context *gin.Context){
@@ -64,3 +57,17 @@ func AddArticle(context *gin.Context){
 }
 
 
+
+//获得类型列表
+func GetTypeList(ctx *gin.Context){
+	typeList:=logic.SearchAllType()
+	wxutil.ResponseData(ctx,typeList,nil,http.StatusOK)
+}
+
+
+//登录
+func LoginIn(){
+	//查询数据库，判断是否登录
+	//若登录成功，种cookiet，放redis
+	//若失败，
+}
