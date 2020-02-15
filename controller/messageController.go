@@ -13,6 +13,11 @@ import (
 
 //增加文章
 func AddArticle(context *gin.Context){
+	//判断是否登录
+	if checkLoginStatus(context)==false {
+		wxutil.ResponseData(context,"",fmt.Errorf("unlogin"),0)
+		return
+	}
 	//从context中获取数据
 	paramMap:=make(map[string]interface{})
 	//得到数据
@@ -56,18 +61,12 @@ func AddArticle(context *gin.Context){
 	wxutil.ResponseData(context,paramMap,nil,http.StatusOK)
 }
 
-
-
 //获得类型列表
 func GetTypeList(ctx *gin.Context){
+	if checkLoginStatus(ctx)==false {
+		wxutil.ResponseData(ctx,"",fmt.Errorf("unlogin"),0)
+		return
+	}
 	typeList:=logic.SearchAllType()
 	wxutil.ResponseData(ctx,typeList,nil,http.StatusOK)
-}
-
-
-//登录
-func LoginIn(){
-	//查询数据库，判断是否登录
-	//若登录成功，种cookiet，放redis
-	//若失败，
 }

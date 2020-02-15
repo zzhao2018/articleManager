@@ -1,8 +1,15 @@
 database: "wxGroupSend"
-user: 
-password: 
-removeUrl: 
-photoSavePath: C:\Users\35278\Desktop\项目\wxPhoto
-emailAddr: 
+user: ""
+password: ""
+removeUrl: ""
+photoSavePath: 
+emailAddr: ""
 subject: "文案"
 toEmailAddr:
+  - ""
+  - ""
+redisAddr:
+  - ""
+redisPassword: ""
+loginStatusLong: 300
+cookietLong: 3000

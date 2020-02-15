@@ -18,6 +18,9 @@ func tickWork(ctx context.Context, useType int, hours int, mins int) {
 	//设置时间
 	nowT := time.Now()
 	timeStamp := time.Date(nowT.Year(), nowT.Month(), nowT.Day(), hours, mins, 0, 0, nowT.Location())
+	if timeStamp.Sub(nowT)<0 {
+		timeStamp=timeStamp.Add(time.Hour*24)
+	}
 	timeTick := time.NewTimer(timeStamp.Sub(nowT))
 	//开始任务
 	for {
@@ -50,8 +53,13 @@ func SetTickWork(ctx context.Context, useType []int, hours []int, mins []int) {
 
 //重置定时设置
 func ReSetSendParam(contextG *gin.Context){
+	//判断是否登录
+	if checkLoginStatus(contextG)==false {
+		wxutil.ResponseData(contextG,"",fmt.Errorf("unlogin"),0)
+		return
+	}
 	//解析配置文件
-	paramStr:=contextG.Query(wxutil.C_ParamSeting)
+	paramStr:=contextG.Request.FormValue(wxutil.C_ParamSeting)
 	var paramArr map[string][]int
 	err:=json.Unmarshal([]byte(paramStr),&paramArr)
 	if err!=nil {
@@ -102,10 +110,12 @@ func ReSetSendParam(contextG *gin.Context){
 func getChangeType(useType []int,hours []int,mins []int)[][]int{
 	typeMap:=make(map[int][]int)
 	resultL:=make([][]int,0)
+	log.Printf("hour:%+v min:%+v\n",hours,mins)
 	//抽取默认字典
 	for i:=0;i<len(defaultUserType) ;i++  {
-		typeMap[defaultUserType[i]]=[]int{hours[i],mins[i]}
+		typeMap[defaultUserType[i]]=[]int{defaultHour[i],defaultMin[i]}
 	}
+	log.Printf("map:%+v\n",typeMap)
 	for i:=0;i<len(useType) ;i++  {
 		//判断是否在里头
 		timeEle,ok:=typeMap[useType[i]]

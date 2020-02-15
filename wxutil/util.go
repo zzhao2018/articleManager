@@ -1,6 +1,8 @@
 package wxutil
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 const(
 	C_PhotoName="images"
@@ -8,6 +10,11 @@ const(
 	C_ContextName="content"
 
 	C_ParamSeting="paramSeting"
+
+	C_CookietName="loginStatus"
+
+	C_PassWordName="password"
+	C_LoginStatus="contextLoginStatus"
 )
 
 type ResponseInfo struct {
@@ -36,7 +43,6 @@ func ResponseData(ctx *gin.Context,data interface{},err error,errorCode int){
 }
 
 //得到错误码
-
 func GetErrorCode(err string)int{
 	return 0
 }

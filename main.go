@@ -1,6 +1,7 @@
 package main
 
 import (
+	"articleManager/wxutil"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -37,6 +38,14 @@ func initProject()error{
 		log.Printf("initProject InitDataBase error,err:%+v\n",err)
 		return err
 	}
+	//初始化redis
+	dao.InitRedis(conf)
+	//初始化id生成器
+	err=wxutil.InitSonyFlake(0)
+	if err!=nil {
+		log.Printf("initProject InitSonyFlake error,err:%+v\n",err)
+		return err
+	}
 	return nil
 }
 
@@ -52,6 +61,6 @@ func main() {
 	engi.POST("/addArticle",controller.AddArticle)
 	engi.POST("/alterParam",controller.ReSetSendParam)
 	engi.GET("/getTypeList",controller.GetTypeList)
-
+	engi.POST("/login",controller.LoginIn)
 	engi.Run(":8088")
 }

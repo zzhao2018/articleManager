@@ -25,10 +25,9 @@ func TestSetTickWork(t *testing.T) {
 }
 
 
+
 func TestDoJob(t *testing.T) {
-	body:="你好,世界"
-	photoPath:=[]string{`C:\Users\35278\Desktop\签约信息\个人信息\相片.png`}
-	DoJob(body,photoPath)
+
 }
 
 func initYaml()*conf.Conf{

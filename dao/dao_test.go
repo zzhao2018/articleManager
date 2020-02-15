@@ -31,6 +31,7 @@ var (
 func init(){
 	config=initYaml()
 	InitDataBase(config)
+	InitRedis(config)
 }
 
 func TestSearchArticle(t *testing.T) {
@@ -64,4 +65,18 @@ func TestSearchTypeById(t *testing.T) {
 
 func TestAlterTypeTime(t *testing.T) {
 	AlterTypeTime(2,"0:30")
+}
+
+func TestGetPassWord(t *testing.T) {
+	t.Logf("%+v",GetPassWord())
+}
+
+func TestSetValueToRedis(t *testing.T) {
+	SetValueToRedis("test","value",60)
+}
+
+func TestGetValueFromRedis(t *testing.T) {
+	data,err:=GetValueFromRedis("test")
+	t.Logf("data:%+v\n",data)
+	t.Logf("err:%+v\n",err)
 }
