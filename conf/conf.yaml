@@ -1,15 +1,16 @@
 database: "wxGroupSend"
-user: ""
-password: ""
-removeUrl: ""
-photoSavePath: 
-emailAddr: ""
-subject: "文案"
+user: 
+password:
+removeUrl: 
+photoSavePath:
+emailAddr: 
+subject: ""
 toEmailAddr:
-  - ""
   - ""
 redisAddr:
   - ""
 redisPassword: ""
 loginStatusLong: 300
 cookietLong: 3000
+pemPath: 
+sslPath: 

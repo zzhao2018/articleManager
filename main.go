@@ -3,6 +3,7 @@ package main
 import (
 	"articleManager/wxutil"
 	"github.com/gin-gonic/gin"
+	"github.com/unrolled/secure"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -28,7 +29,7 @@ func initYaml()*conf.Conf{
 }
 
 //初始化参数
-func initProject()error{
+func initProject()(*conf.Conf,error){
 	//初始化配置文件
 	conf:=initYaml()
 	controller.SetConfig(conf)
@@ -36,7 +37,7 @@ func initProject()error{
 	err:=dao.InitDataBase(conf)
 	if err!=nil {
 		log.Printf("initProject InitDataBase error,err:%+v\n",err)
-		return err
+		return nil,err
 	}
 	//初始化redis
 	dao.InitRedis(conf)
@@ -44,23 +45,40 @@ func initProject()error{
 	err=wxutil.InitSonyFlake(0)
 	if err!=nil {
 		log.Printf("initProject InitSonyFlake error,err:%+v\n",err)
-		return err
+		return nil,err
 	}
-	return nil
+	return conf,nil
 }
 
 func main() {
 	//初始化参数
-	err:=initProject()
+	conf,err:=initProject()
 	if err!=nil {
 		log.Printf("initProject error,err:%+v\n",err)
 		return
 	}
 	//开启服务
 	engi:=gin.Default()
+	//使用https
+	engi.Use(HttpSHandler())
 	engi.POST("/addArticle",controller.AddArticle)
 	engi.POST("/alterParam",controller.ReSetSendParam)
 	engi.GET("/getTypeList",controller.GetTypeList)
 	engi.POST("/login",controller.LoginIn)
-	engi.Run(":8088")
+	engi.RunTLS(":8089",conf.PemPath,conf.SslPath)
+}
+
+func HttpSHandler()gin.HandlerFunc {
+	return func(context *gin.Context) {
+		secureProcess:=secure.New(secure.Options{
+			SSLRedirect:                     true,
+			SSLHost:                         "localhost:8089",
+		})
+		err:=secureProcess.Process(context.Writer,context.Request)
+		if err!=nil {
+			log.Printf("HttpSHandler Process error,err:%+v\n",err)
+			return
+		}
+		context.Next()
+	}
 }

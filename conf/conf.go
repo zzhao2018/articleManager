@@ -18,6 +18,8 @@ type Conf struct {
 	RedisPassWord   string   `yaml:"redisPassword"`
 	LoginStatusLong int      `yaml:"loginStatusLong"`
 	CookietLong     int      `yaml:"cookietLong"`
+	PemPath         string   `yaml:"pemPath"`
+	SslPath         string   `yaml:"sslPath"`
 }
 
 const (
