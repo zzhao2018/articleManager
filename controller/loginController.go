@@ -25,13 +25,14 @@ func LoginIn(ctx *gin.Context){
 	if access==true {
 		//设置会话可用
 		ctx.Set(wxutil.C_LoginStatus,"live")
-		//种cook
+		//设置全局变量
 		genId,err:=wxutil.GetGeneralId()
 		if err!=nil {
 			log.Printf("LoginIn GetGeneralId error,err:%+v\n",err)
 			wxutil.ResponseData(ctx,"",err,0)
 			return
 		}
+		//种cook
 		cook:=&http.Cookie{
 			Name:       wxutil.C_CookietName,
 			Value:      strconv.Itoa(int(genId)),

@@ -2,15 +2,14 @@ package logic
 
 import (
 	"articleManager/dao"
+	"articleManager/wxutil"
 	"log"
-	"sync"
 	"time"
 )
 
 //用以判断是否登录
 var (
-	loginMap map[string]bool=make(map[string]bool)
-	mapLock  sync.Mutex
+	loginMap =wxutil.NewSafeMap()
 )
 
 func init()  {
@@ -28,10 +27,8 @@ func LoginAccess(password string) bool {
 
 //判断是否登录过
 func UserIsLogin(key string, timeLong int) bool {
-	mapLock.Lock()
-	defer mapLock.Unlock()
 	//字典中不存在，返回未登录
-	if loginStatus, ok := loginMap[key]; ok == false {
+	if loginStatus, ok := loginMap.Get(key); ok == false {
 		return false
 		//字典中存在，但是键过期，返回false
 	} else if loginStatus == false {
@@ -41,7 +38,7 @@ func UserIsLogin(key string, timeLong int) bool {
 		value, err := dao.GetValueFromRedis(key)
 		if err != nil {
 			log.Printf("UserIsLogin GetValueFromRedis error,err:%+v\n", err)
-			loginMap[key] = false
+			loginMap.Put(key,false)
 			return false
 		}
 		if value == "1" {
@@ -49,35 +46,28 @@ func UserIsLogin(key string, timeLong int) bool {
 			dao.SetValueToRedis(key, "1", timeLong)
 			return true
 		}
-		loginMap[key] = false
+		loginMap.Put(key,false)
 		return false
 	}
 }
 
 //设置redis时间
 func SetUserTime(key string, value string, timeLen int) {
-	mapLock.Lock()
-	defer mapLock.Unlock()
+	loginMap.Put(key,true)
 	dao.SetValueToRedis(key, value, timeLen)
-	loginMap[key]=true
 }
 
 
 //定期清理无用键
+//此处可优化
+//每日3点30开始清理
 func clearPairInTime(){
 	for {
-		time.Sleep(time.Hour*24)
-		go clearPair()
-	}
-}
-
-//清理无用键值对
-func clearPair(){
-	mapLock.Lock()
-	defer mapLock.Unlock()
-	for k,v:=range loginMap  {
-		if v==false {
-			delete(loginMap,k)
-		}
+		timeN:=time.Now()
+		doTime:=time.Date(timeN.Year(),timeN.Month(),timeN.Day()+1,3,30,0,0,timeN.Location())
+		time.Sleep(doTime.Sub(timeN))
+		go func() {
+			loginMap.ClearPair()
+		}()
 	}
 }
