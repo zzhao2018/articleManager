@@ -47,19 +47,3 @@ func LoginIn(ctx *gin.Context){
 	}
 	wxutil.ResponseData(ctx,"",fmt.Errorf("unlogin"),0)
 }
-
-
-//判断是否需要登录
-func checkLoginStatus(ctx *gin.Context)bool{
-	//判断session
-	v,exist:=ctx.Get(wxutil.C_LoginStatus)
-	if exist==true&&v=="live" {
-		return true
-	}
-	//获得cookiet
-	cook,err:=ctx.Request.Cookie(wxutil.C_CookietName)
-	if err!=nil {
-		return false
-	}
-	return logic.UserIsLogin(cook.Value,config.LoginStatusLong)
-}

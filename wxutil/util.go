@@ -10,6 +10,7 @@ const(
 	C_ContextName="content"
 
 	C_ParamSeting="paramSeting"
+	C_ParamDelete="paramDelete"
 
 	C_CookietName="loginStatus"
 

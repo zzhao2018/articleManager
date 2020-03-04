@@ -1,15 +1,14 @@
 package main
 
 import (
-	"articleManager/wxutil"
-	"github.com/gin-gonic/gin"
-	"github.com/unrolled/secure"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"log"
 	"articleManager/conf"
 	"articleManager/controller"
 	"articleManager/dao"
+	"articleManager/wxutil"
+	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
 )
 
 //解析配置文件
@@ -60,25 +59,12 @@ func main() {
 	//开启服务
 	engi:=gin.Default()
 	//使用https
-	engi.Use(HttpSHandler())
-	engi.POST("/addArticle",controller.AddArticle)
-	engi.POST("/alterParam",controller.ReSetSendParam)
-	engi.GET("/getTypeList",controller.GetTypeList)
+	engi.Use(controller.HttpSHandler())
+	engi.POST("/addArticle",controller.LoginMiddleWare,controller.AddArticle)
+	engi.POST("/alterParam",controller.LoginMiddleWare,controller.ReSetSendParam)
+	engi.GET("/getTypeList",controller.LoginMiddleWare,controller.GetTypeList)
+	engi.POST("/deleteType",controller.LoginMiddleWare,controller.DeleteType)
 	engi.POST("/login",controller.LoginIn)
 	engi.RunTLS(":8089",conf.PemPath,conf.SslPath)
 }
 
-func HttpSHandler()gin.HandlerFunc {
-	return func(context *gin.Context) {
-		secureProcess:=secure.New(secure.Options{
-			SSLRedirect:                     true,
-			SSLHost:                         "localhost:8089",
-		})
-		err:=secureProcess.Process(context.Writer,context.Request)
-		if err!=nil {
-			log.Printf("HttpSHandler Process error,err:%+v\n",err)
-			return
-		}
-		context.Next()
-	}
-}

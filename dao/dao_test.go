@@ -80,3 +80,11 @@ func TestGetValueFromRedis(t *testing.T) {
 	t.Logf("data:%+v\n",data)
 	t.Logf("err:%+v\n",err)
 }
+
+func TestDeletaTypeById(t *testing.T) {
+	err:=DeletaTypeById(1)
+	if err!=nil {
+		t.Logf("error:%+v\n",err)
+		return
+	}
+}

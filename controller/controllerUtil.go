@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/smtp"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -42,7 +43,7 @@ var(
 	defaultcCancleFunc context.CancelFunc
 	defauleCtx context.Context
 	//锁
-	sendLock sync.Mutex
+	sendLock sync.RWMutex
 )
 
 
@@ -236,4 +237,114 @@ func SendMailUsingTLS(addr string, auth smtp.Auth, from string,
 		return err
 	}
 	return c.Quit()
+}
+
+
+/***************************重置定时任务*********************************/
+//重新设置发送时间
+func resetTime(useType []int,hours []int,mins []int)error{
+	//加锁设置定时线程
+	sendLock.Lock()
+	defer sendLock.Unlock()
+	//取消先前任务
+	if defaultcCancleFunc !=nil{
+		defaultcCancleFunc()
+	}
+	//设置当前任务
+	SetDefaultSendParam(useType,hours,mins)
+	go SetTickWork(defauleCtx,defaultUserType,defaultHour,defaultMin)
+	return nil
+}
+
+//从map中抽取数据
+func getUserHoursMinArr(paramArr map[string][]int)([]int,[]int,[]int,error){
+	useType:=make([]int,0)
+	hours:=make([]int,0)
+	mins:=make([]int,0)
+	for k,v:=range paramArr{
+		//解析类别
+		kEle,err:=strconv.ParseInt(k,10,32)
+		if err!=nil {
+			log.Printf("resetTime ParseInt error,err:%+v\n",err)
+			return nil,nil,nil,err
+		}
+		useType= append(useType, int(kEle))
+		hours=append(hours,v[0])
+		mins=append(mins,v[1])
+	}
+	log.Printf("useT:%+v hours:%+v mins:%+v\n",useType,hours,mins)
+	return useType,hours,mins,nil
+}
+
+//新获得和原本数据的差集
+func getChangeType(useType []int,hours []int,mins []int)[][]int{
+	typeMap:=make(map[int][]int)
+	resultL:=make([][]int,0)
+	//抽取默认字典
+	sendLock.RLock()
+	for i:=0;i<len(defaultUserType) ;i++  {
+		typeMap[defaultUserType[i]]=[]int{defaultHour[i],defaultMin[i]}
+	}
+	sendLock.RUnlock()
+	log.Printf("map:%+v\n",typeMap)
+	for i:=0;i<len(useType) ;i++  {
+		//判断是否在里头
+		timeEle,ok:=typeMap[useType[i]]
+		if ok==false {
+			midList:=make([]int,3)
+			midList[0]=useType[i]
+			midList[1]=hours[i]
+			midList[2]=mins[i]
+			resultL=append(resultL,midList)
+		}else{
+			if timeEle[0]==hours[i] && timeEle[1]==mins[i] {
+				continue
+			}else {
+				midList:=make([]int,3)
+				midList[0]=useType[i]
+				midList[1]=hours[i]
+				midList[2]=mins[i]
+				resultL=append(resultL,midList)
+			}
+		}
+	}
+	return resultL
+}
+
+
+//设置单个定时任务
+func tickWork(ctx context.Context, useType int, hours int, mins int) {
+	//设置时间
+	nowT := time.Now()
+	timeStamp := time.Date(nowT.Year(), nowT.Month(), nowT.Day(), hours, mins, 0, 0, nowT.Location())
+	if timeStamp.Sub(nowT)<0 {
+		timeStamp=timeStamp.Add(time.Hour*24)
+	}
+	timeTick := time.NewTimer(timeStamp.Sub(nowT))
+	//开始任务
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Printf("close thread.....")
+			return
+		case <-timeTick.C:
+			//更新时间
+			nowT = time.Now()
+			timeStamp = time.Date(nowT.Year(), nowT.Month(), nowT.Day()+1, hours, mins, 0, 0, nowT.Location())
+			timeTick = time.NewTimer(timeStamp.Sub(nowT))
+			//运行程序
+			job := NewTickJob(useType)
+			go job.Run()
+		}
+	}
+}
+
+//设置所有定时任务
+func SetTickWork(ctx context.Context, useType []int, hours []int, mins []int) {
+	if len(useType) <= 0 || len(hours) <= 0 || len(mins) <= 0 {
+		return
+	}
+	for i := 0; i < len(useType); i++ {
+		go tickWork(ctx, useType[i], hours[i], mins[i])
+	}
 }
