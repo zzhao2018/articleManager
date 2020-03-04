@@ -11,6 +11,7 @@ const(
 
 	C_ParamSeting="paramSeting"
 	C_ParamDelete="paramDelete"
+	C_ParamInsert="paramInsert"
 
 	C_CookietName="loginStatus"
 

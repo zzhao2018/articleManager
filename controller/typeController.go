@@ -14,6 +14,8 @@ import (
 /*
   类别处理的controller
 */
+
+//删除类别
 func DeleteType(contextG *gin.Context){
 	//获得删除的id
 	var deletearr []int
@@ -26,7 +28,6 @@ func DeleteType(contextG *gin.Context){
 		return
 	}
 	//重置数据库
-	// 删除数据
 	err=logic.DeleteType(deletearr)
 	if err!=nil {
 		log.Printf("DeleteType logic.DeleteType error,err:%+v\n",err)
@@ -34,6 +35,46 @@ func DeleteType(contextG *gin.Context){
 		return
 	}
 	//重置定时任务
+	typeMap,err:=resertAfterAlter()
+	if err!=nil {
+		log.Printf("DeleteType resertAfterAlter error,err:%+v\n",err)
+		wxutil.ResponseData(contextG,nil,err,0)
+		return
+	}
+	wxutil.ResponseData(contextG,typeMap,nil,http.StatusOK)
+}
+
+//新增类别
+func AddType(contextG *gin.Context){
+	//获得删除的id
+	var insertType map[string][]int
+	insertL:=contextG.Request.FormValue(wxutil.C_ParamInsert)
+	//解析
+	err:=json.Unmarshal([]byte(insertL),&insertType)
+	if err!=nil {
+		log.Printf("AddType json Unmarshal error,err:%+v\n",err)
+		wxutil.ResponseData(contextG,nil,err,0)
+		return
+	}
+	//插入数据库
+	err=logic.AddType(insertType)
+	if err!=nil {
+		log.Printf("AddType logic.DeleteType error,err:%+v\n",err)
+		wxutil.ResponseData(contextG,nil,err,0)
+		return
+	}
+	//重置定时任务
+	typeMap,err:=resertAfterAlter()
+	if err!=nil {
+		log.Printf("AddType resertAfterAlter error,err:%+v\n",err)
+		wxutil.ResponseData(contextG,nil,err,0)
+		return
+	}
+	wxutil.ResponseData(contextG,typeMap,nil,http.StatusOK)
+}
+
+//删除、增加时重置定时任务
+func resertAfterAlter()(map[string][]int,error){
 	//获得剩余类型数据
 	typeInfo:=logic.SearchAllType()
 	typeMap:=make(map[string][]int,len(typeInfo))
@@ -46,9 +87,8 @@ func DeleteType(contextG *gin.Context){
 		for _,timeEleS:=range timeArr{
 			timeEle,err:=strconv.ParseInt(timeEleS,10,64)
 			if err!=nil {
-				log.Println("DeleteType hour conver error,err:%+v\n",err)
-				wxutil.ResponseData(contextG,nil,err,0)
-				return
+				log.Println("resertAfterAlter conver error,err:%+v\n",err)
+				return nil,err
 			}
 			arrValue=append(arrValue,int(timeEle))
 		}
@@ -59,21 +99,17 @@ func DeleteType(contextG *gin.Context){
 	//抽取文案类型、时间
 	useType,hours,mins,err:=getUserHoursMinArr(typeMap)
 	if err!=nil {
-		log.Printf("DeleteType getUserHoursMinArr error,err:%+v\n",err)
-		wxutil.ResponseData(contextG,nil,err,wxutil.GetErrorCode(err.Error()))
-		return
+		log.Printf("resertAfterAlter getUserHoursMinArr error,err:%+v\n",err)
+		return nil,err
 	}
 	//重置发送时间
 	err=resetTime(useType,hours,mins)
 	if err!=nil {
-		log.Printf("DeleteType resetTime error,err:%+v\n",err)
-		wxutil.ResponseData(contextG,nil,err,wxutil.GetErrorCode(err.Error()))
-		return
+		log.Printf("resertAfterAlter resetTime error,err:%+v\n",err)
+		return nil,err
 	}
-	wxutil.ResponseData(contextG,typeMap,nil,http.StatusOK)
+	return typeMap,nil
 }
-
-
 
 //重置定时设置
 func ReSetSendParam(contextG *gin.Context){

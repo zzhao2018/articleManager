@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"articleManager/model"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -87,4 +88,20 @@ func TestDeletaTypeById(t *testing.T) {
 		t.Logf("error:%+v\n",err)
 		return
 	}
+}
+
+
+func TestInsertType(t *testing.T) {
+	InsertType(
+		&model.TypeInfo{
+			Id:          0,
+			TypeName:    "测试type",
+			SendTime:    "12:30",
+			Delete_code: 0,
+		})
+}
+
+func TestSearchTypeByName(t *testing.T) {
+	data:=SearchTypeByName("关系")
+	t.Logf("data:%+v\n",data)
 }

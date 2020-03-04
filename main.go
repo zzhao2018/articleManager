@@ -64,6 +64,7 @@ func main() {
 	engi.POST("/alterParam",controller.LoginMiddleWare,controller.ReSetSendParam)
 	engi.GET("/getTypeList",controller.LoginMiddleWare,controller.GetTypeList)
 	engi.POST("/deleteType",controller.LoginMiddleWare,controller.DeleteType)
+	engi.POST("/addType",controller.LoginMiddleWare,controller.AddType)
 	engi.POST("/login",controller.LoginIn)
 	engi.RunTLS(":8089",conf.PemPath,conf.SslPath)
 }

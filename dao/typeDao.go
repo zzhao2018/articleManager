@@ -16,6 +16,13 @@ func SearchTypeById(typeI int)*model.TypeInfo{
 	return &typeInfo
 }
 
+//用类型名称查询
+func SearchTypeByName(names string)*model.TypeInfo{
+	var typeInfo model.TypeInfo
+	db.Where("type_name=? and delete_code=?",names,0).First(&typeInfo)
+	return &typeInfo
+}
+
 //更改时间
 func AlterTypeTime(typeI int,timeS string)error{
 	var typeModel=model.TypeInfo{
@@ -34,3 +41,7 @@ func DeletaTypeById(typeI int)error{
 	return nil
 }
 
+//增加删除类别
+func InsertType(typeInfo *model.TypeInfo){
+	db.Create(typeInfo)
+}
